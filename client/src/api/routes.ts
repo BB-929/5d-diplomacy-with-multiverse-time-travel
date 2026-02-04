@@ -1,4 +1,4 @@
-const baseUrl = import.meta.env.VITE_SERVER_URL;
+const baseUrl = 'https://fived-diplomacy-with-multiverse-time-vy1t.onrender.com';
 
 const routes = {
   createGame: () => `${baseUrl}/game`,
