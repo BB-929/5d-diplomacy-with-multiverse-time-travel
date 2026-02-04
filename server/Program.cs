@@ -36,19 +36,24 @@ builder.Services.AddScoped<WorldRepository>();
 builder.Services.AddSingleton<RegionMapFactory>();
 builder.Services.AddSingleton<DefaultWorldFactory>();
 
+// 1. Add this in the "builder" section (before var app = builder.Build();)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
+
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    app.UseCors(options => options
-        .AllowAnyOrigin()
-        .AllowAnyHeader()
-        .AllowAnyMethod());
-}
+app.UseCors("AllowAll");
 
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
+
 
