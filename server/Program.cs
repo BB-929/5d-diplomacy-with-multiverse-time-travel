@@ -10,7 +10,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("https://fived-diplomacy-with-multiverse-time-vy1t.onrender.com")
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
@@ -65,6 +65,7 @@ app.UseCors("AllowAll");
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
+
 
 
 
