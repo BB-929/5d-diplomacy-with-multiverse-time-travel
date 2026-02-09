@@ -6,15 +6,15 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// CORS Configuration - FIXED!
+// CORS Configuration
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowVercel", policy =>
     {
         policy.WithOrigins(
-            "https://5d-diplomacy-with-multiverse-time-t.vercel.app",  // Your VERCEL URL
-            "http://localhost:5173",                                    // Local development
-            "http://localhost:3000"                                     // Alternative local port
+            "https://5d-diplomacy-with-multiverse-time-t.vercel.app",
+            "http://localhost:5173",
+            "http://localhost:3000"
         )
         .AllowAnyMethod()
         .AllowAnyHeader()
@@ -54,8 +54,9 @@ builder.Services.AddSingleton<DefaultWorldFactory>();
 
 var app = builder.Build();
 
+// CRITICAL: Middleware order matters!
+app.UseCors("AllowVercel");  // CORS must come FIRST
 app.UseRouting();
-app.UseCors("AllowVercel");  // Apply CORS policy
 app.UseAuthorization();
 app.MapControllers();
 
