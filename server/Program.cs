@@ -13,12 +13,13 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod()
               .AllowAnyHeader()));
 
-builder.Services.AddControllers().AddJsonOptions(options => 
-    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter()));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 var provider = builder.Configuration["Provider"];
 switch (provider)
 {
@@ -48,3 +49,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
