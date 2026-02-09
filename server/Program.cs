@@ -6,18 +6,16 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// More permissive CORS for testing
+// CORS Configuration - Fixed lambda syntax
 builder.Services.AddCors(options =>
-{
     options.AddPolicy("AllowAll", policy =>
-    {
         policy.AllowAnyOrigin()
               .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
+              .AllowAnyHeader()));
 
-builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+builder.Services.AddControllers().AddJsonOptions(options => 
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -25,19 +23,13 @@ var provider = builder.Configuration["Provider"];
 switch (provider)
 {
     case "Sqlite":
-        {
-            builder.Services.AddDbContext<GameContext, SqliteGameContext>();
-            break;
-        }
+        builder.Services.AddDbContext<GameContext, SqliteGameContext>();
+        break;
     case "SqlServer":
-        {
-            builder.Services.AddDbContext<GameContext, SqlServerGameContext>();
-            break;
-        }
+        builder.Services.AddDbContext<GameContext, SqlServerGameContext>();
+        break;
     default:
-        {
-            throw new ArgumentException($"Invalid provider: {provider}");
-        }
+        throw new ArgumentException($"Invalid provider: {provider}");
 }
 
 builder.Services.AddScoped<EntityMapper>();
@@ -49,7 +41,7 @@ builder.Services.AddSingleton<DefaultWorldFactory>();
 
 var app = builder.Build();
 
-// CORS FIRST!
+// CORS must come first
 app.UseCors("AllowAll");
 app.UseRouting();
 app.UseAuthorization();
