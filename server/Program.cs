@@ -49,22 +49,28 @@ builder.Services.AddSingleton<DefaultWorldFactory>();
 // 1. Add this in the "builder" section (before var app = builder.Build();)
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowVercel", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        policy.WithOrigins(
+            "https://fived-diplomacy-with-multiverse-time-vy1t.onrender.com",  
+            "http://localhost:5173",              // Keep for local development
+            "http://localhost:3000"               // Alternative local port
+        )
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials();
     });
 });
 
 var app = builder.Build();
 
 app.UseRouting():
-app.UseCors("AllowAll");
+app.UseCors("AllowVercel");
 
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
+
 
 
 
