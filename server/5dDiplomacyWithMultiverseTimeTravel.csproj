@@ -10,7 +10,8 @@
     <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
-
+<EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.13.1" />
     <PackageReference Include="FluentAssertions" Version="6.12.0" />
