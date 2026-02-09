@@ -6,13 +6,19 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// CORS Configuration - FIXED!
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowVercel", policy =>
     {
-        policy.WithOrigins("https://fived-diplomacy-with-multiverse-time-vy1t.onrender.com")
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        policy.WithOrigins(
+            "https://5d-diplomacy-with-multiverse-time-t.vercel.app",  // Your VERCEL URL
+            "http://localhost:5173",                                    // Local development
+            "http://localhost:3000"                                     // Alternative local port
+        )
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials();
     });
 });
 
@@ -46,33 +52,11 @@ builder.Services.AddScoped<WorldRepository>();
 builder.Services.AddSingleton<RegionMapFactory>();
 builder.Services.AddSingleton<DefaultWorldFactory>();
 
-// 1. Add this in the "builder" section (before var app = builder.Build();)
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowVercel", policy =>
-    {
-        policy.WithOrigins(
-            "https://fived-diplomacy-with-multiverse-time-vy1t.onrender.com",  
-            "http://localhost:5173",              // Keep for local development
-            "http://localhost:3000"               // Alternative local port
-        )
-        .AllowAnyMethod()
-        .AllowAnyHeader()
-        .AllowCredentials();
-    });
-});
-
 var app = builder.Build();
 
-app.UseRouting():
-app.UseCors("AllowVercel");
-
+app.UseRouting();
+app.UseCors("AllowVercel");  // Apply CORS policy
 app.UseAuthorization();
 app.MapControllers();
+
 app.Run();
-
-
-
-
-
-
