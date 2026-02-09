@@ -6,19 +6,14 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// CORS Configuration
+// More permissive CORS for testing
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowVercel", policy =>
+    options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins(
-            "https://5d-diplomacy-with-multiverse-time-t.vercel.app",
-            "http://localhost:5173",
-            "http://localhost:3000"
-        )
-        .AllowAnyMethod()
-        .AllowAnyHeader()
-        .AllowCredentials();
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
     });
 });
 
@@ -54,8 +49,8 @@ builder.Services.AddSingleton<DefaultWorldFactory>();
 
 var app = builder.Build();
 
-// CRITICAL: Middleware order matters!
-app.UseCors("AllowVercel");  // CORS must come FIRST
+// CORS FIRST!
+app.UseCors("AllowAll");
 app.UseRouting();
 app.UseAuthorization();
 app.MapControllers();
