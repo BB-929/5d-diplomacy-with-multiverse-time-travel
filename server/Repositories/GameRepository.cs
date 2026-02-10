@@ -112,5 +112,33 @@ public class GameRepository(ILogger<GameRepository> logger, GameContext context,
         logger.LogInformation("Selected random nation {Player}", player);
         return player;
     }
+    public async Task AddActivePlayer(int gameId, Nation player)
+    {
+        logger.LogInformation("Adding active player {Player} to game {GameId}", player, gameId);
+        
+        var game = await context.Games.FindAsync(gameId) ?? throw new GameNotFoundException();
+        
+        // Only track for non-sandbox games
+        if (game.IsSandbox)
+            return;
+        
+        // Add player to active players list if not already there
+        if (!game.ActivePlayers.Contains(player))
+        {
+            game.ActivePlayers.Add(player);
+            await context.SaveChangesAsync();
+        }
+    }
+    
+    public async Task<List<Nation>> GetActivePlayers(int gameId)
+    {
+        logger.LogInformation("Fetching active players for game {GameId}", gameId);
+        
+        var game = await context.Games
+            .AsNoTracking()
+            .SingleOrDefaultAsync(g => g.Id == gameId) ?? throw new GameNotFoundException();
+        
+        return game.ActivePlayers;
+    }
 }
 
