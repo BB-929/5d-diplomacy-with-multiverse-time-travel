@@ -64,6 +64,7 @@ public class GameController(
             else
             {
                 var (game, chosenPlayer) = await gameRepository.JoinNormalGame(gameId, player);
+                await gameRepository.AddActivePlayer(game.Id, chosenPlayer);
                 return Ok(new Game(game.Id, game.HasStrictAdjacencies, chosenPlayer));
             }
         }
@@ -157,9 +158,39 @@ public class GameController(
             }
 
             await worldRepository.AddOrders(gameId, players, mappedOrders);
+            await AutoSubmitInactivePlayers(gameId);
             return Ok();
         }
         catch (GameNotFoundException)
+         private async Task AutoSubmitInactivePlayers(int gameId)
+    {
+        logger.LogInformation("Auto-submitting orders for inactive players in game {GameId}", gameId);
+        
+        var game = await gameRepository.GetGame(gameId);
+        
+        // Skip for sandbox games
+        if (game.IsSandbox)
+            return;
+        
+        // Get active players
+        var activePlayers = await gameRepository.GetActivePlayers(gameId);
+        
+        // Get all possible nations
+        var allNations = Enum.GetValues<Nation>();
+        
+        // Find inactive nations
+        var inactiveNations = allNations.Except(activePlayers).ToList();
+        
+        if (inactiveNations.Count == 0)
+            return;
+        
+        logger.LogInformation("Found {Count} inactive nations: {Nations}", 
+            inactiveNations.Count, string.Join(", ", inactiveNations));
+        
+        // Submit empty orders (hold all) for each inactive nation
+        await worldRepository.AddOrders(gameId, inactiveNations.ToArray(), new List<Entities.Order>());
+    }
+}
         {
             logger.LogWarning("Failed to find world with ID {GameId}", gameId);
             return NotFound($"No world with game ID {gameId} found");
