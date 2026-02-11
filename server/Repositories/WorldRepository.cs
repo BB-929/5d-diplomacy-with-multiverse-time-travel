@@ -79,6 +79,38 @@ public class WorldRepository(ILogger<WorldRepository> logger, GameContext contex
     {
         logger.LogInformation("Querying world for game {GameId}", gameId);
 
+        private async Task AutoSubmitInactivePlayers(int gameId)
+{
+    logger.LogInformation("Auto-submitting orders for nations without players in game {GameId}", gameId);
+    
+    var game = await gameRepository.GetGame(gameId);
+    
+    // Skip for sandbox games (all nations have "players" in sandbox)
+    if (game.IsSandbox)
+        return;
+    
+    // Get all possible nations
+    var allNations = Enum.GetValues<Nation>().ToList();
+    
+    // Get nations that have players assigned
+    var nationsWithPlayers = game.Players;
+    
+    // Find nations without any player
+    var nationsWithoutPlayers = allNations.Except(nationsWithPlayers).ToList();
+    
+    // Also exclude nations that already submitted
+    var nationsToAutoSubmit = nationsWithoutPlayers.Except(game.PlayersSubmitted).ToList();
+    
+    if (nationsToAutoSubmit.Count == 0)
+        return;
+    
+    logger.LogInformation("Auto-submitting for {Count} nations without players: {Nations}", 
+        nationsToAutoSubmit.Count, string.Join(", ", nationsToAutoSubmit));
+    
+    // Submit empty orders (all units will hold) for nations without players
+    await worldRepository.AddOrders(gameId, nationsToAutoSubmit.ToArray(), new List<Entities.Order>());
+}
+
         // Should be called within a serializable transaction.
         var worldQuery = context.Worlds
             .Include(w => w.Boards).ThenInclude(b => b.Centres)
