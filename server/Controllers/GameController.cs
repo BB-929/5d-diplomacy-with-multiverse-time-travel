@@ -162,7 +162,13 @@ public class GameController(
             return Ok();
         }
         catch (GameNotFoundException)
-         private async Task AutoSubmitInactivePlayers(int gameId)
+        
+        {
+            logger.LogWarning("Failed to find world with ID {GameId}", gameId);
+            return NotFound($"No world with game ID {gameId} found");
+        }
+    }
+     private async Task AutoSubmitInactivePlayers(int gameId)
     {
         logger.LogInformation("Auto-submitting orders for inactive players in game {GameId}", gameId);
         
@@ -189,11 +195,5 @@ public class GameController(
         
         // Submit empty orders (hold all) for each inactive nation
         await worldRepository.AddOrders(gameId, inactiveNations.ToArray(), new List<Entities.Order>());
-    }
-}
-        {
-            logger.LogWarning("Failed to find world with ID {GameId}", gameId);
-            return NotFound($"No world with game ID {gameId} found");
-        }
     }
 }
