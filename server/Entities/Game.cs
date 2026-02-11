@@ -10,6 +10,7 @@ public class Game
     public bool HasStrictAdjacencies { get; set; }
 
     public List<Nation> Players { get; set; } = [];
+    public List<Nation> ActivePlayers { get; set; } = [];
     public virtual World? World { get; set; }
     public List<Nation> PlayersSubmitted { get; set; } = [];
 }
